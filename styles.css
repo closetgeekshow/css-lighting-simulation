@@ -1,0 +1,122 @@
+:root {
+  --light-hue: 50;
+  --light-sat: 0%;
+  --light-l: 100%;
+}
+
+body {
+  margin: 0;
+  background: #eee;
+  font-family: sans-serif;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 1rem;
+  padding: 1rem;
+}
+
+.light-box {
+  position: relative;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.light-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: hsl(var(--light-hue), var(--light-sat), var(--light-l));
+  mix-blend-mode: screen;
+  opacity: 0.15;
+  z-index: 2;
+}
+
+.form {
+  position: relative;
+  z-index: 1;
+}
+
+.form input,
+.form button {
+  display: block;
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.form input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+.form button {
+  background: linear-gradient(135deg, #444, #333);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.form button:hover {
+  background: linear-gradient(135deg, #555, #444);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.form button:active {
+  background: linear-gradient(135deg, #333, #222);
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(1px);
+}
+
+.form button:focus {
+  outline: none;
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    0 0 0 3px rgba(68, 68, 68, 0.4);
+}
+
+.form input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+  display: inline-block;
+}
+
+.form input[type="checkbox"]:focus {
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+}
+
+.label {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  z-index: 3;
+}
