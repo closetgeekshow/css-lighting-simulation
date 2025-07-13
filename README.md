@@ -159,4 +159,4 @@ const LIGHTING_MODES = {
 
 ## Credits
 
-- **Color Test Concepts**: Inspired by printer test images from ["My Top Choices of Printer Test Images for Photographers"](https://www.lapseoftheshutter.com/printer-test-image/) by Tim Daniels at Lapse of the Shutter
+- **Color Test Concepts**: Printer test image from ["My Top Choices of Printer Test Images for Photographers"](https://www.lapseoftheshutter.com/printer-test-image/) by Tim Daniels at Lapse of the Shutter
