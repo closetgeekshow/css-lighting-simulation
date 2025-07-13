@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Light & Shadow Techniques Demo - Simulating Natural Depth Online</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.1),
+                0 1px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 60px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.08),
+                0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .section h2 {
+            color: #34495e;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .technique-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        /* CSS Box Shadow Techniques */
+        .shadow-demo {
+            padding: 20px;
+            border-radius: 10px;
+            background: white;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .subtle-shadow {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .layered-shadow {
+            box-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.05),
+                0 5px 15px rgba(0, 0, 0, 0.1),
+                0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .contact-shadow {
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.12),
+                0 0 0 1px rgba(0, 0, 0, 0.02);
+        }
+
+        .hard-shadow {
+            box-shadow: 8px 8px 0 #3498db;
+        }
+
+        .colored-shadow {
+            box-shadow: 0 8px 32px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            margin: 10px;
+        }
+
+        .btn-elevated {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 
+                0 4px 15px rgba(52, 152, 219, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-elevated:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 20px rgba(52, 152, 219, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-elevated:active {
+            transform: translateY(0);
+            box-shadow: 
+                0 2px 8px rgba(52, 152, 219, 0.3),
+                inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Neumorphism Style */
+        .neumorphic {
+            background: #e0e5ec;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                9px 9px 18px #bebebe,
+                -9px -9px 18px #ffffff;
+        }
+
+        .neumorphic-btn {
+            background: #e0e5ec;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            box-shadow: 
+                5px 5px 10px #bebebe,
+                -5px -5px 10px #ffffff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .neumorphic-btn:hover {
+            box-shadow: 
+                2px 2px 5px #bebebe,
+                -2px -2px 5px #ffffff;
+        }
+
+        .neumorphic-btn:active {
+            box-shadow: 
+                inset 2px 2px 5px #bebebe,
+                inset -2px -2px 5px #ffffff;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card-basic {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-basic:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-layered {
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.12),
+                0 4px 8px rgba(0, 0, 0, 0.08),
+                0 8px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-layered:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.15),
+                0 6px 12px rgba(0, 0, 0, 0.12),
+                0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Gradient Lighting Effects */
+        .gradient-light {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .radial-glow {
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, transparent 70%),
+                        linear-gradient(145deg, #3498db, #2980b9);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Filter Effects */
+        .filter-demo {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .drop-shadow-filter {
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+        }
+
+        .brightness-demo {
+            filter: brightness(1.2) drop-shadow(0 3px 10px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Interactive Mouse Tracking */
+        .mouse-track {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mouse-track::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle 100px at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                        rgba(52, 152, 219, 0.1) 0%, 
+                        transparent 70%);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .mouse-track:hover::before {
+            opacity: 1;
+        }
+
+        /* Product Display */
+        .product-demo {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-image {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(145deg, #ecf0f1, #bdc3c7);
+            border-radius: 15px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #7f8c8d;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .product-image::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            filter: blur(5px);
+        }
+
+        /* Text Shadow Examples */
+        .text-shadow-demo {
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin: 10px;
+        }
+
+        .text-subtle {
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-glow {
+            color: #3498db;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .text-embossed {
+            color: #95a5a6;
+            text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        /* Modal Demo */
+        .modal-trigger {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .modal-trigger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.5);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-modal {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* Animation Demo */
+        .animated-shadow {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            animation: shadowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes shadowPulse {
+            0%, 100% {
+                box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 30px rgba(52, 152, 219, 0.6);
+            }
+        }
+
+        /* SVG Filter Demo */
+        .svg-demo {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .svg-shadow {
+            filter: url(#svg-shadow-filter);
+        }
+
+        /* Accessibility Demo */
+        .accessibility-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .good-contrast {
+            background: white;
+            color: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .poor-contrast {
+            background: #f8f9fa;
+            color: #dee2e6;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Code Display */
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .description {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .technique-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .accessibility-demo {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Light & Shadow Techniques Demo</h1>
+        <p style="text-align: center; color: #7f8c8d; margin-bottom: 40px;">
+            A comprehensive demonstration of techniques for simulating natural light and shadow for depth and realism online
+        </p>
+
+        <!-- CSS Box Shadow Techniques -->
+        <div class="section">
+            <h2>1. CSS Box Shadow Techniques</h2>
+            <p class="description">
+                The foundation of creating depth with CSS. Each technique demonstrates different shadow characteristics.
+            </p>
+            
+            <div class="technique-grid">
+                <div class="shadow-demo subtle-shadow">
+                    <h3>Subtle Shadow</h3>
+                    <p>Soft, natural lighting</p>
+                    <div class="code-block">
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    </div>
+                </div>
+
+                <div class="shadow-demo layered-shadow">
+                    <h3>Layered Shadow</h3>
+                    <p>Multiple shadows for realism</p>
+                    <div class="code-block">
+box-shadow: 
+  0 2px 4px rgba(0,0,0,0.05),
+  0 5px 15px rgba(0,0,0,0.1),
+  0 10px 30px rgba(0,0,0,0.05);
+                    </div>
+                </div>
+
+                <div class="shadow-demo contact-shadow">
+                    <h3>Contact Shadow</h3>
+                    <p>Tight shadow for grounding</p>
+                    <div class="code-block">
+box-shadow: 
+  0 1px 3px rgba(0,0,0,0.12),
+  0 0 0 1px rgba(0,0,0,0.02);
+                    </div>
+                </div>
+
+                <div class="shadow-demo hard-shadow">
+                    <h3>Hard Shadow</h3>
+                    <p>Graphic, artistic effect</p>
+                    <div class="code-block">
+box-shadow: 8px 8px 0 #3498db;
+                    </div>
+                </div>
+
+                <div class="shadow-demo colored-shadow">
+                    <h3>Colored Shadow</h3>
+                    <p>Adds atmosphere and mood</p>
+                    <div class="code-block">
+box-shadow: 0 8px 32px rgba(52,152,219,0.3);
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Button States -->
+        <div class="section">
+            <h2>2. Interactive Button States</h2>
+            <p class="description">
+                Demonstrates how shadows change on hover and active states to provide visual feedback.
+            </p>
+            
+            <div style="text-align: center;">
+                <button class="btn btn-elevated">Hover Me!</button>
+                <button class="btn btn-elevated">Press Me!</button>
+                <button class="btn btn-elevated">Interactive Button</button>
+            </div>
+            
+            <div class="code-block">
+.btn-elevated {
+  box-shadow: 
+    0 4px 15px rgba(52,152,219,0.4),
+    0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-elevated:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(52,152,219,0.5),
+    0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-elevated:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 8px rgba(52,152,219,0.3),
+    inset 0 2px 4px rgba(0,0,0,0.1);
+}
+            </div>
+        </div>
+
+        <!-- Neumorphism -->
+        <div class="section">
+            <h2>3. Neumorphism (Soft UI)</h2>
+            <p class="description">
+                A design trend that uses light and shadow to create elements that appear to extrude from the background.
+            </p>
+            
+            <div class="neumorphic" style="text-align: center;">
+                <h3>Neumorphic Container</h3>
+                <p>Elements appear carved from the same material</p>
+                <button class="neumorphic-btn">Neumorphic Button</button>
+            </div>
+            
+            <div class="code-block">
+.neumorphic {
+  background: #e0e5ec;
+  box-shadow: 
+    9px 9px 18px #bebebe,
+    -9px -9px 18px #ffffff;
+}
+
+.neumorphic-btn:active {
+  box-shadow: 
+    inset 2px 2px 5px #bebebe,
+    inset -2px -2px 5px #ffffff;
+}
+            </div>
+        </div>
+
+        <!-- Card Layouts -->
+        <div class="section">
+            <h2>4. Card Layouts with Depth</h2>
+            <p class="description">
+                Cards with different shadow treatments for layered interfaces.
+            </p>
+            
+            <div class="technique-grid">
+                <div class="card card-basic">
+                    <h3>Basic Card</h3>
+                    <p>Simple shadow for clean separation</p>
+                    <p><strong>Hover to see interaction</strong></p>
+                </div>
+
+                <div class="card card-layered">
+                    <h3>Layered Card</h3>
+                    <p>Multiple shadows for enhanced depth</p>
+                    <p><strong>Hover to see interaction</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gradient Lighting -->
+        <div class="section">
+            <h2>5. Gradient Lighting Effects</h2>
+            <p class="description">
+                Using gradients to simulate light falling on surfaces.
+            </p>
+            
+            <div class="technique-grid">
+                <div class="gradient-light">
+                    <h3>Linear Gradient Light</h3>
+                    <p>Simulates directional lighting on a surface</p>
+                </div>
+
+                <div class="radial-glow">
+                    <h3>Radial Glow</h3>
+                    <p>Creates a point light source effect</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Shadow Examples -->
+        <div class="section">
+            <h2>6. Text Shadow Techniques</h2>
+            <p class="description">
+                Enhancing typography with shadow effects for better readability and visual impact.
+            </p>
+            
+            <div class="technique-grid">
+                <div class="text-shadow-demo">
+                    <h3 class="text-subtle">Subtle Text Shadow</h3>
+                    <p>Enhances readability without distraction</p>
+                </div>
+
+                <div class="text-shadow-demo" style="background: #2c3e50;">
+                    <h3 class="text-glow">Glowing Text</h3>
+                    <p style="color: white;">Creates emphasis and atmosphere</p>
+                </div>
+
+                <div class="text-shadow-demo" style="background: #ecf0f1;">
+                    <h3 class="text-embossed">Embossed Text</h3>
+                    <p>Appears carved into the surface</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSS Filter Effects -->
+        <div class="section">
+            <h2>7. CSS Filter Effects</h2>
+            <p class="description">
+                Advanced filter effects for complex shapes and transparency.
+            </p>
+            
+            <div class="technique-grid">
+                <div class="filter-demo drop-shadow-filter">
+                    <h3>Drop Shadow Filter</h3>
+                    <p>Works with PNG transparency</p>
+                </div>
+
+                <div class="filter-demo brightness-demo">
+                    <h3>Brightness + Shadow</h3>
+                    <p>Combined effects for enhanced lighting</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Mouse Tracking -->
+        <div class="section">
+            <h2>8. Interactive Mouse Tracking</h2>
+            <p class="description">
+                Dynamic lighting that follows mouse movement for engaging interactions.
+            </p>
+            
+            <div class="mouse-track" id="mouseTrack">
+                <h3>Mouse-Tracked Lighting</h3>
+                <p>Move your mouse over this area to see the light follow</p>
+            </div>
+        </div>
+
+        <!-- Product Display -->
+        <div class="section">
+            <h2>9. E-commerce Product Display</h2>
+            <p class="description">
+                Realistic shadows that ground products and enhance perceived value.
+            </p>
+            
+            <div class="technique-grid">
+                <div class="product-demo">
+                    <div class="product-image">📱</div>
+                    <h3>Product with Grounding Shadow</h3>
+                    <p>Creates realistic placement on surface</p>
+                </div>
+
+                <div class="product-demo">
+                    <div class="product-image">💻</div>
+                    <h3>Enhanced Product Display</h3>
+                    <p>Multiple shadow layers for depth</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Demo -->
+        <div class="section">
+            <h2>10. Modal Depth and Layering</h2>
+            <p class="description">
+                Demonstrating how shadows create clear visual hierarchy for overlays.
+            </p>
+            
+            <div style="text-align: center;">
+                <button class="modal-trigger" onclick="openModal()">Open Modal</button>
+            </div>
+        </div>
+
+        <!-- Animation Demo -->
+        <div class="section">
+            <h2>11. Animated Shadow Effects</h2>
+            <p class="description">
+                Dynamic shadows that change over time for engaging visual effects.
+            </p>
+            
+            <div class="animated-shadow">
+                <h3>Pulsing Shadow</h3>
+                <p>Animated shadow creates breathing effect</p>
+            </div>
+        </div>
+
+        <!-- SVG Filter Demo -->
+        <div class="section">
+            <h2>12. SVG Filter Effects</h2>
+            <p class="description">
+                Advanced lighting effects using SVG filters for complex shapes.
+            </p>
+            
+            <div class="svg-demo">
+                <svg width="200" height="200" viewBox="0 0 200 200">
+                    <defs>
+                        <filter id="svg-shadow-filter" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+                            <feOffset dx="3" dy="3" result="offset"/>
+                            <feComponentTransfer>
+                                <feFuncA type="linear" slope="0.3"/>
+                            </feComponentTransfer>
+                            <feMerge>
+                                <feMergeNode/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <circle cx="100" cy="100" r="50" fill="#3498db" class="svg-shadow"/>
+                    <polygon points="100,50 130,90 170,90 140,110 150,150 100,130 50,150 60,110 30,90 70,90" 
+                             fill="#f39c12" class="svg-shadow" transform="translate(0,20)"/>
+                </svg>
+                
+                <p>SVG shapes with custom filter effects</p>
+            </div>
+        </div>
+
+        <!-- Accessibility Considerations -->
+        <div class="section">
+            <h2>13. Accessibility Considerations</h2>
+            <p class="description">
+                Ensuring shadows enhance rather than hinder usability.
+            </p>
+            
+            <div class="accessibility-demo">
+                <div class="good-contrast">
+                    <h3>Good Contrast</h3>
+                    <p>Clear text remains readable with subtle shadows</p>
+                </div>
+
+                <div class="poor-contrast">
+                    <h3>Poor Contrast</h3>
+                    <p>This text is hard to read due to low contrast</p>
+                </div>
+            </div>
+            
+            <div class="code-block">
+/* Always ensure sufficient contrast */
+.good-contrast {
+  background: white;
+  color: #2c3e50; /* High contrast ratio */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Avoid low contrast combinations */
+.poor-contrast {
+  background: #f8f9fa;
+  color: #dee2e6; /* Low contrast - poor accessibility */
+}
+            </div>
+        </div>
+
+                <div class="card card-basic">
+                    <h3>📱 Performance</h3>
+                    <p>Consider performance impact of complex shadows on mobile devices</p>
+                </div>
+
+                <div class="card card-basic">
+                    <h3>♿ Accessibility</h3>
+                    <p>Always maintain sufficient contrast ratios for readability</p>
+                </div>
+
+                <div class="card card-basic">
+                    <h3>🔧 Progressive Enhancement</h3>
+                    <p>Use shadows to enhance, not replace, clear visual hierarchy</p>
+                </div>
+
+                <div class="card card-basic">
+                    <h3>🎭 Context Appropriate</h3>
+                    <p>Match shadow complexity to your design's overall aesthetic</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Tips -->
+        <div class="section">
+            <h2>15. Implementation Tips</h2>
+            <div class="code-block">
+/* Layer multiple box-shadows for realism */
+.realistic-shadow {
+  box-shadow: 
+    0 1px 3px rgba(0,0,0,0.12),    /* Contact shadow */
+    0 3px 8px rgba(0,0,0,0.08),    /* Mid-range */
+    0 8px 20px rgba(0,0,0,0.04);   /* Ambient */
+}
+
+/* Use CSS custom properties for consistency */
+:root {
+  --shadow-light: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-medium: 0 4px 16px rgba(0,0,0,0.12);
+  --shadow-heavy: 0 8px 32px rgba(0,0,0,0.16);
+}
+
+/* Performance-conscious shadows */
+.efficient-shadow {
+  box-shadow: var(--shadow-medium);
+  will-change: box-shadow; /* Only when animating */
+}
+
+/* Responsive shadow scaling */
+@media (max-width: 768px) {
+  .card {
+    box-shadow: var(--shadow-light); /* Lighter on mobile */
+  }
+}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <h2>Modal with Depth</h2>
+            <p>This modal demonstrates how shadows create clear visual hierarchy and focus. The overlay darkens the background while the modal appears to float above with multiple shadow layers.</p>
+            <p>Notice how the shadow creates separation from the background and establishes this modal as the primary interactive element.</p>
+            <button class="close-modal" onclick="closeModal()">Close Modal</button>
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        function openModal() {
+            const modal = document.getElementById('modalOverlay');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modalOverlay');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking overlay
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Mouse tracking for interactive lighting
+        const mouseTrackElement = document.getElementById('mouseTrack');
+        
+        mouseTrackElement.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            this.style.setProperty('--mouse-x', x + '%');
+            this.style.setProperty('--mouse-y', y + '%');
+            
+            // Dynamic shadow based on mouse position
+            const offsetX = (x - 50) / 10;
+            const offsetY = (y - 50) / 10;
+            
+            this.style.boxShadow = `
+                ${offsetX}px ${offsetY}px 20px rgba(52, 152, 219, 0.3),
+                ${-offsetX}px ${-offsetY}px 20px rgba(231, 76, 60, 0.2),
+                0 5px 15px rgba(0, 0, 0, 0.1)
+            `;
+        });
+
+        mouseTrackElement.addEventListener('mouseleave', function() {
+            this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+        });
+
+        // Button interaction enhancement
+        const buttons = document.querySelectorAll('.btn-elevated');
+        buttons.forEach(button => {
+            button.addEventListener('mousedown', function() {
+                this.style.transform = 'translateY(1px)';
+            });
+            
+            button.addEventListener('mouseup', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Neumorphic button interaction
+        const neumorphicButtons = document.querySelectorAll('.neumorphic-btn');
+        neumorphicButtons.forEach(button => {
+            button.addEventListener('mousedown', function() {
+                this.style.boxShadow = `
+                    inset 2px 2px 5px #bebebe,
+                    inset -2px -2px 5px #ffffff
+                `;
+            });
+            
+            button.addEventListener('mouseup', function() {
+                this.style.boxShadow = `
+                    2px 2px 5px #bebebe,
+                    -2px -2px 5px #ffffff
+                `;
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.boxShadow = `
+                    5px 5px 10px #bebebe,
+                    -5px -5px 10px #ffffff
+                `;
+            });
+        });
+
+        // Card hover enhancements with random subtle variations
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                // Add subtle random variation to make each card feel unique
+                const randomOffset = (Math.random() - 0.5) * 2;
+                const randomBlur = 15 + Math.random() * 5;
+                
+                if (this.classList.contains('card-basic')) {
+                    this.style.boxShadow = `
+                        0 ${8 + randomOffset}px ${randomBlur}px rgba(0, 0, 0, 0.15)
+                    `;
+                }
+            });
+        });
+
+        // Keyboard navigation support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Add focus styles for accessibility
+        const focusableElements = document.querySelectorAll('button, .card');
+        focusableElements.forEach(element => {
+            element.addEventListener('focus', function() {
+                this.style.outline = '3px solid rgba(52, 152, 219, 0.5)';
+                this.style.outlineOffset = '2px';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.style.outline = 'none';
+            });
+        });
+
+        // Performance optimization: throttle mouse events
+        function throttle(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Apply throttling to mouse tracking
+        const throttledMouseMove = throttle(function(e) {
+            // Mouse tracking logic here if needed for performance
+        }, 16); // ~60fps
+
+        // Add scroll-based shadow intensity (subtle parallax effect)
+        window.addEventListener('scroll', throttle(function() {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.5;
+            
+            // Adjust main container shadow based on scroll
+            const container = document.querySelector('.container');
+            const shadowIntensity = Math.min(scrolled / 500, 1);
+            container.style.boxShadow = `
+                0 ${10 + shadowIntensity * 20}px ${30 + shadowIntensity * 20}px rgba(0, 0, 0, ${0.1 + shadowIntensity * 0.1}),
+                0 1px 8px rgba(0, 0, 0, 0.05)
+            `;
+        }, 16));
+
+        // Initialize demo with welcome message
+        console.log(`
+🌟 Light & Shadow Techniques Demo Loaded!
+
+This demo showcases:
+✨ CSS box-shadow techniques
+🎨 Interactive button states
+🖼️ Card layouts with depth
+🌈 Gradient lighting effects
+📝 Text shadow examples
+🔄 Dynamic mouse tracking
+🎭 Modal depth and layering
+♿ Accessibility considerations
+
+Try interacting with the elements to see the effects in action!
+        `);
+
+        // Add subtle entrance animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        document.querySelectorAll('.section').forEach((section, index) => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
