@@ -1,0 +1,136 @@
+.css-lighting-simulation {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.lighting-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.lighting-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.lighting-controls select {
+  padding: 0.5rem 1rem;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.lighting-controls select:hover {
+  background: #eee;
+}
+
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: 20px;
+  background: radial-gradient(circle at top left, #fdfdfd 0%, #ddd 100%);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.material-swatch {
+  position: relative;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  z-index: 0;
+}
+
+.material-swatch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: hsl(
+    calc(var(--light-hue, 60) + (var(--light-influence, 0) * 20)), 
+    var(--light-sat, 20%), 
+    var(--light-l, 100%)
+  );
+  mix-blend-mode: screen;
+  opacity: calc(var(--overlay-opacity, 0.12) + (var(--glare-intensity, 0) * 0.2));
+  z-index: 1;
+  transition: opacity 0.15s ease-out;
+}
+
+.material-swatch::after {
+  content: "";
+  position: absolute;
+  width: 20%;
+  height: 120%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255,255,255, calc(var(--glare-intensity, 0.25) * 0.3)) 10%,
+    rgba(255,255,255, var(--glare-intensity, 0.25)) 40%,
+    rgba(255,255,255, var(--glare-intensity, 0.25)) 60%,
+    rgba(255,255,255, calc(var(--glare-intensity, 0.25) * 0.3)) 90%,
+    transparent 100%
+  );
+  transform: translateX(-50%) rotate(calc(var(--light-angle, 0deg) * 0.2));
+  top: -10%;
+  left: var(--glare-x, 50%);
+  z-index: 2;
+  pointer-events: none;
+  transition: all 0.15s ease-out;
+  filter: blur(0.5px);
+}
+
+.material-label {
+  position: relative;
+  z-index: 3;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  color: white;
+  font-weight: 500;
+}
+
+/* Material-specific styles */
+.plastic-glossy {
+  background: linear-gradient(145deg, #444, #222);
+  box-shadow:
+    inset 0 4px 8px rgba(255,255,255,0.1),
+    inset 0 -2px 4px rgba(0,0,0,0.4),
+    0 4px 8px rgba(0,0,0,0.6);
+}
+
+.plastic-glossy::after {
+  width: 15%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255,255,255, calc(var(--glare-intensity, 0.25) * 0.2)) 5%,
+    rgba(255,255,255, var(--glare-intensity, 0.25)) 25%,
+    rgba(255,255,255, calc(var(--glare-intensity, 0.25) * 1.2)) 50%,
+    rgba(255,255,255, var(--glare-intensity, 0.25)) 75%,
+    rgba(255,255,255, calc(var(--glare-intensity, 0.25) * 0.2)) 95%,
+    transparent 100%
+  );
+  filter: blur(0.3px);
+}
+
+.metal-brushed {
+  background: linear-gradient(135deg, #aaa, #ccc);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px),
+    linear-gradient(135deg, #aaa, #ccc);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.1),
+    inset 0 -1px

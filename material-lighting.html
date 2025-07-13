@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Material + Lighting Demo</title>
+  <style>
+    :root {
+      --light-hue: 60;
+      --light-sat: 20%;
+      --light-l: 100%;
+      --overlay-opacity: 0.12;
+    }
+
+    body {
+      background: #ccc;
+      background: radial-gradient(circle at top left, #eee, #bbb);
+      color: #111;
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    select {
+      padding: 0.4em 1em;
+      background: #eee;
+      color: #111;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+      border-radius: 20px;
+      background: radial-gradient(circle at top left, #fdfdfd 0%, #ddd 100%);
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .swatch {
+      position: relative;
+      height: 120px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      z-index: 0;
+    }
+
+    .swatch::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: hsl(
+        calc(var(--light-hue) + (var(--light-influence, 0) * 20)), 
+        var(--light-sat), 
+        var(--light-l)
+      );
+      mix-blend-mode: screen;
+      opacity: calc(var(--overlay-opacity) + (var(--glare-intensity, 0) * 0.2));
+      z-index: 1;
+      transition: opacity 0.15s ease-out;
+    }
+
+    .swatch::after {
+      content: "";
+      position: absolute;
+      width: 300%;
+      height: 200%;
+      background: radial-gradient(
+        ellipse 60% 40% at var(--glare-x, 50%) var(--glare-y, 30%), 
+        rgba(255,255,255, var(--glare-intensity, 0.25)), 
+        rgba(255,255,255, calc(var(--glare-intensity, 0.25) * 0.5)) 30%,
+        transparent 70%
+      );
+      transform: translate(-50%, -50%) rotate(calc(var(--light-angle, 0deg) * 0.3));
+      top: var(--glare-y, 30%);
+      left: var(--glare-x, 50%);
+      z-index: 2;
+      pointer-events: none;
+      transition: all 0.15s ease-out;
+    }
+
+    /* Optional: Add a subtle global light indicator */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: var(--global-light-x, 50%);
+      width: 2px;
+      height: 20px;
+      background: linear-gradient(to bottom, 
+        hsl(var(--light-hue), var(--light-sat), var(--light-l)), 
+        transparent
+      );
+      transform: translateX(-50%);
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.3;
+    }
+
+    .label {
+      position: relative;
+      z-index: 3;
+      text-shadow: 0 1px 2px black;
+    }
+
+    /* Material styles */
+
+    .plastic-glossy {
+      background: linear-gradient(145deg, #444, #222);
+      box-shadow:
+        inset 0 4px 8px rgba(255,255,255,0.1),
+        inset 0 -2px 4px rgba(0,0,0,0.4),
+        0 4px 8px rgba(0,0,0,0.6);
+    }
+
+    .metal-brushed {
+      background: linear-gradient(135deg, #aaa, #ccc);
+      background-size: 200% 100%;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 3px),
+        linear-gradient(135deg, #aaa, #ccc);
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.1),
+        inset 0 -1px 2px rgba(0,0,0,0.2);
+    }
+
+    .rubber {
+      background: #1a1a1a;
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.05),
+        inset 0 -2px 2px rgba(0,0,0,0.6);
+    }
+
+    .plastic-matte {
+      background: #444;
+      filter: brightness(0.9);
+      box-shadow:
+        inset 0 2px 3px rgba(255,255,255,0.05),
+        inset 0 -2px 2px rgba(0,0,0,0.3);
+    }
+
+    .glass {
+      background: linear-gradient(to bottom right, rgba(255,255,255,0.08), rgba(0,0,0,0.2));
+      backdrop-filter: blur(3px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .metal-painted {
+      background: #003366;
+      box-shadow:
+        inset 0 2px 4px rgba(255,255,255,0.05),
+        0 2px 6px rgba(0,0,0,0.5);
+      filter: saturate(1.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <label>
+      Light Preset:
+      <select id="presetSelect"></select>
+    </label>
+
+    <label>
+      Intensity:
+      <select id="modeSelect">
+        <option value="subtle">Subtle</option>
+        <option value="realistic">Realistic</option>
+        <option value="interior">Interior</option>
+        <option value="exterior">Exterior</option>
+        <option value="cinematic">Cinematic</option>
+        <option value="dramatic">Dramatic</option>
+        <option value="extreme">Extreme</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="grid">
+    <div class="swatch plastic-glossy"><div class="label">Glossy Plastic</div></div>
+    <div class="swatch plastic-matte"><div class="label">Matte Plastic</div></div>
+    <div class="swatch rubber"><div class="label">Rubber</div></div>
+    <div class="swatch metal-brushed"><div class="label">Brushed Metal</div></div>
+    <div class="swatch metal-painted"><div class="label">Painted Metal</div></div>
+    <div class="swatch glass"><div class="label">Frosted Glass</div></div>
+  </div>
+
+  <script type="module">
+    import { lightPresets } from './lightPresets.js';
+
+    const LIGHTING_MODES = {
+      subtle:     0.04,
+      realistic:  0.08,
+      interior:   0.12,
+      exterior:   0.25,
+      cinematic:  0.45,
+      dramatic:   0.7,
+      extreme:    1.0
+    };
+
+    const presetSelect = document.getElementById('presetSelect');
+    const modeSelect = document.getElementById('modeSelect');
+
+    lightPresets.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.name;
+      opt.textContent = p.name;
+      presetSelect.appendChild(opt);
+    });
+
+    presetSelect.addEventListener('change', e => {
+      const selected = lightPresets.find(p => p.name === e.target.value);
+      if (selected) {
+        document.documentElement.style.setProperty('--light-hue', selected.hue);
+        document.documentElement.style.setProperty('--light-sat', selected.sat);
+        document.documentElement.style.setProperty('--light-l', selected.l);
+      }
+    });
+
+    modeSelect.addEventListener('change', e => {
+      const opacity = LIGHTING_MODES[e.target.value] ?? 0.12;
+      document.documentElement.style.setProperty('--overlay-opacity', opacity);
+    });
+
+    // Global light source tracking - single light moving horizontally
+    let globalLightX = 0;
+    const viewportWidth = window.innerWidth;
+
+    // Update viewport width on resize
+    window.addEventListener('resize', () => {
+      viewportWidth = window.innerWidth;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      globalLightX = e.clientX;
+      updateGlobalLighting();
+    });
+
+    function updateGlobalLighting() {
+      // Normalize light position across viewport (0 to 1)
+      const normalizedLightX = globalLightX / viewportWidth;
+      
+      // Calculate light angle - simulates overhead light moving left to right
+      const lightAngle = (normalizedLightX - 0.5) * 45; // -22.5 to +22.5 degrees
+      
+      document.querySelectorAll('.swatch').forEach(swatch => {
+        const rect = swatch.getBoundingClientRect();
+        const elementCenterX = rect.left + rect.width / 2;
+        
+        // Distance from light source to element center
+        const distanceFromLight = Math.abs(globalLightX - elementCenterX);
+        
+        // Falloff based on horizontal distance
+        const maxDistance = viewportWidth * 0.5;
+        const falloffDistance = Math.min(distanceFromLight, maxDistance);
+        const falloffFactor = 1 - (falloffDistance / maxDistance);
+        
+        // Smooth falloff curve
+        const smoothFalloff = 1 - Math.pow(1 - falloffFactor, 1.5);
+        
+        // Base intensity varies by material type
+        const materialClass = swatch.className.split(' ').find(cls => 
+          ['plastic-glossy', 'metal-brushed', 'glass', 'plastic-matte', 'rubber', 'metal-painted'].includes(cls)
+        );
+        
+        let baseMaterialReflectivity = 0.3;
+        if (materialClass === 'plastic-glossy') baseMaterialReflectivity = 0.5;
+        if (materialClass === 'metal-brushed') baseMaterialReflectivity = 0.7;
+        if (materialClass === 'glass') baseMaterialReflectivity = 0.6;
+        if (materialClass === 'plastic-matte') baseMaterialReflectivity = 0.15;
+        if (materialClass === 'rubber') baseMaterialReflectivity = 0.08;
+        if (materialClass === 'metal-painted') baseMaterialReflectivity = 0.4;
+        
+        // Calculate final reflection intensity
+        const reflectionIntensity = smoothFalloff * baseMaterialReflectivity;
+        
+        // Position stripe based on light angle - more direct mapping for vertical stripes
+        const stripeX = 50 + (lightAngle * 1.2); // More pronounced horizontal movement
+        
+        // Update CSS custom properties
+        swatch.style.setProperty('--glare-x', `${stripeX}%`);
+        swatch.style.setProperty('--glare-intensity', reflectionIntensity.toFixed(3));
+        
+        // Global light color influence
+        const colorShift = Math.sin(normalizedLightX * Math.PI) * 0.1;
+        swatch.style.setProperty('--light-influence', colorShift.toFixed(3));
+      });
+      
+      // Update global light position indicator
+      document.documentElement.style.setProperty('--global-light-x', `${normalizedLightX * 100}%`);
+      document.documentElement.style.setProperty('--light-angle', `${lightAngle}deg`);
+    }
+
+    // Initialize
+    presetSelect.value = 'Edison';
+    presetSelect.dispatchEvent(new Event('change'));
+    modeSelect.value = 'interior';
+    modeSelect.dispatchEvent(new Event('change'));
+
+    // Initial lighting update
+    updateGlobalLighting();
+  </script>
+</body>
+</html>
