@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PBR UI - Advanced Effects</title>
+<style>
+:root {
+  --ao-opacity: 0.2;
+}
+body {
+  margin: 0;
+  background: #223344;
+  color: #eee;
+  font-family: monospace;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top left, #99bbdd, #336699);
+  position: relative;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.masked-surface {
+  width: 320px;
+  height: 200px;
+  mask: url(#surface-mask);
+  -webkit-mask: url(#surface-mask);
+  mask-composite: intersect;
+  -webkit-mask-composite: destination-in;
+}
+
+.surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(circle at top left, #a0c4e4, #5b89af);
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,0.3),
+    inset 0 -2px 5px rgba(0,0,0,0.3),
+    0 8px 20px rgba(0,0,0,0.25);
+  backdrop-filter: blur(1px);
+  filter: url(#bump-lighting);
+}
+
+.surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(0,0,0,var(--ao-opacity)) 0%, transparent 70%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.01) 1px, transparent 2px);
+  z-index: 1;
+  pointer-events: none;
+  background-size: 300% 300%, 2px 2px;
+  mix-blend-mode: overlay;
+  animation: shimmer 12s linear infinite;
+}
+
+.ripple-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: radial-gradient(circle at 40% 60%, rgba(255,255,255,0.1), transparent 60%);
+  mix-blend-mode: soft-light;
+  filter: url(#ripple-distort);
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 200%;
+  }
+}
+
+.test-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 60px;
+  background: linear-gradient(120deg, #222, #444);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 -2px 5px rgba(0,0,0,0.4),
+    0 6px 12px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eee;
+  font-size: 1rem;
+  z-index: 4;
+}
+</style>
+</head>
+<body>
+  <main>
+    <div class="masked-surface">
+      <div class="surface" id="surface">
+        <div class="ripple-layer"></div>
+        <div class="test-button">PRESS</div>
+        <svg width="0" height="0">
+          <filter id="ripple-distort" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse">
+            <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence"/>
+            <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+
+          <filter id="bump-lighting" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse">
+            <feTurbulence type="turbulence" baseFrequency="0.015" numOctaves="2" result="turbulence" />
+            <feDiffuseLighting in="turbulence" lighting-color="#ffffff" surfaceScale="1" result="light">
+              <feDistantLight azimuth="135" elevation="45" />
+            </feDiffuseLighting>
+            <feComposite in="SourceGraphic" in2="light" operator="arithmetic" k1="1" k2="0.3" k3="0.3" k4="0"/>
+          </filter>
+
+          <mask id="surface-mask">
+            <rect x="0" y="0" width="320" height="200" rx="30" ry="30" fill="white" />
+          </mask>
+        </svg>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
